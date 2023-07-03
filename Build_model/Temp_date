@@ -1,0 +1,151 @@
+import pandas as pd
+import tensorflow as tf
+import numpy as np
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+
+df = pd.read_csv('data/weather_date.csv')
+df = df.dropna()
+
+for i in range(len(df['weather'])):
+    if df['weather'][i] == 'rain':
+        df['weather'][i] = 2
+    elif df['weather'][i] == 'sunny':
+        df['weather'][i] = 1
+    elif df['weather'][i] == 'clouds':
+        df['weather'][i] = 0
+
+X = df.iloc[:, 2:12].values
+y = df.iloc[:, 4:6].values
+
+print(X[0])
+print(y[0])
+
+y = np.roll(y, -1)
+
+X = X[:-1, :]
+y = y[:-1]
+
+
+
+print(X[0])
+print(y[0])
+
+X = np.array(X, dtype=np.float32)
+y = np.array(y, dtype=np.float32)
+
+# normalize data stardardization
+
+x_mean = np.mean(X, axis=0)
+x_std = np.std(X, axis=0)
+
+X = (X - x_mean) / x_std
+
+y_mean = np.mean(y, axis=0)
+y_std = np.std(y, axis=0)
+
+y = (y - y_mean) / y_std
+
+
+print(X[0])
+print(y[0])
+X = np.array(X, dtype=np.float32)
+y = np.array(y, dtype=np.float32)
+
+X = [X[i:i+5].ravel() for i in range(len(X)-4)]
+
+# remove first 4 samples of label
+y = y[4:]
+
+X = np.array(X)
+y = np.array(y)
+
+print(X.shape)
+print(y.shape)
+
+# split data
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# reshape data
+
+X_train_lstm = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+X_test_lstm = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+
+print(X_train_lstm.shape)
+print(X_test_lstm.shape)
+
+# build model
+
+model = tf.keras.models.Sequential([
+  tf.keras.layers.LSTM(64, input_shape=(X_train_lstm.shape[1], 1), return_sequences=True, activation='tanh'),
+  tf.keras.layers.Dropout(0.2),
+
+  tf.keras.layers.LSTM(128, activation='tanh'),
+  tf.keras.layers.Dropout(0.2),
+
+  tf.keras.layers.Dense(128, activation="linear"),
+  tf.keras.layers.Dense(128, activation="linear"),
+  tf.keras.layers.Dense(2, activation="linear")
+])
+
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+
+# train model
+
+history = model.fit(X_train_lstm, y_train, epochs=50, batch_size=32, validation_data=(X_test_lstm, y_test))
+
+# plot loss
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('loss of temperature day prediction ')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+
+# plot accuracy
+
+plt.plot(history.history['mae'])
+plt.plot(history.history['val_mae'])
+plt.title('accuracy of temperature day prediction ')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+
+# save model
+
+model.save('Model/model_temp_day.h5')
+
+# evaluate model
+
+model.evaluate(X_test_lstm, y_test)
+
+# mae, mse, r2
+
+y_pred = model.predict(X_test_lstm)
+
+print('mae: ', mean_absolute_error(y_test, y_pred))
+
+print('mse: ', mean_squared_error(y_test, y_pred))
+
+print('r2: ', r2_score(y_test, y_pred))
+
+# plot prediction
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(y_test[:, 0], label='actual')
+plt.plot(y_pred[:, 0], label='prediction')
+
+plt.title('temperature day prediction')
+
+plt.legend()
+plt.show()
+
+
+

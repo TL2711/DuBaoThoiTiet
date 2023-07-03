@@ -1,0 +1,22 @@
+<RCC>
+  <qresource prefix="Img">
+    <file>Image/fog.png</file>
+    <file>Image/icons8-address-50.png</file>
+    <file>Image/icons8-atmospheric-pressure-25.png</file>
+    <file>Image/icons8-circle-25.png</file>
+    <file>Image/icons8-cloud-16.png</file>
+    <file>Image/icons8-eye-25.png</file>
+    <file>Image/icons8-hygrometer-25.png</file>
+    <file>Image/icons8-leaf-25.png</file>
+    <file>Image/icons8-partly-cloudy-day-48.png</file>
+    <file>Image/icons8-rain-48.png</file>
+    <file>Image/icons8-sun-25.png</file>
+    <file>Image/icons8-sun-48.png</file>
+    <file>Image/icons8-thermometer-25.png</file>
+    <file>Image/icons8-visit-25.png</file>
+    <file>Image/may.jpg</file>
+    <file>Image/sun.png</file>
+    <file>Image/win.png</file>
+    <file>Image/icons8-close-32.png</file>
+  </qresource>
+</RCC>

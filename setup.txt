@@ -1,0 +1,7 @@
+numpy
+tensorflow
+matplotlib
+h5py
+matplotlib
+pyqt5
+pandas
